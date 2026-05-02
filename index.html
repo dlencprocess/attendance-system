@@ -173,7 +173,7 @@
     <h1>출결 체크</h1>
     <p class="class-name" id="class-label">로딩 중...</p>
 
-    <label for="emp-id">사번 입력</label>
+    <label for="emp-id">사번</label>
     <input
       type="text"
       id="emp-id"
@@ -183,14 +183,23 @@
       maxlength="20"
     />
 
-    <div class="error-msg" id="error-msg">⚠️ 사번을 입력해주세요.</div>
+    <label for="emp-name">이름</label>
+    <input
+      type="text"
+      id="emp-name"
+      placeholder="이름을 입력하세요"
+      autocomplete="off"
+      maxlength="20"
+    />
+
+    <div class="error-msg" id="error-msg">⚠️ 사번과 이름을 모두 입력해주세요.</div>
 
     <div class="btn-group">
       <button class="btn btn-in"  onclick="submit('입실')">🟢 입실</button>
       <button class="btn btn-out" onclick="submit('퇴실')">🔴 퇴실</button>
     </div>
 
-    <p class="save-hint">사번은 이 기기에 자동 저장됩니다</p>
+    <p class="save-hint">사번과 이름은 이 기기에 자동 저장됩니다</p>
   </div>
 
   <!-- 결과 화면 -->
@@ -206,21 +215,24 @@
 <script>
   // ─── 설정 ─────────────────────────────────────────────
   // 1) Apps Script 배포 URL을 여기에 넣으세요
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxV7K_n4eL_O31swY11pcmIAkMwv3X_4SoBy_40Btz9JypBaPKHzWhAwSWS2kjqIK_Cdw/exec';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSE6E1FrKnrQK81arcZhdGP4nSXe4A1XN-l5Hauo3XZAJNTMfgRVDWuyD9RvJYQdw_Mw/exec';
   // ──────────────────────────────────────────────────────
 
-  const input   = document.getElementById('emp-id');
-  const errMsg  = document.getElementById('error-msg');
-  const clsLabel = document.getElementById('class-label');
+  const input     = document.getElementById('emp-id');
+  const nameInput = document.getElementById('emp-name');
+  const errMsg    = document.getElementById('error-msg');
+  const clsLabel  = document.getElementById('class-label');
 
   // URL 파라미터에서 수업명 읽기
   const params    = new URLSearchParams(window.location.search);
   const className = params.get('class') || '출결 시스템';
   clsLabel.textContent = className;
 
-  // 저장된 사번 불러오기 (localStorage)
+  // 저장된 사번 / 이름 불러오기 (localStorage)
   const saved = localStorage.getItem('emp_id');
   if (saved) input.value = saved;
+  const savedName = localStorage.getItem('emp_name');
+  if (savedName) nameInput.value = savedName;
 
   // 기기 고유 ID 생성 (없으면 새로 만들어 저장)
   function getDeviceId() {
@@ -238,17 +250,20 @@
   });
 
   async function submit(type) {
-    const empId = input.value.trim();
+    const empId   = input.value.trim();
+    const empName = nameInput.value.trim();
 
-    if (!empId) {
+    if (!empId || !empName) {
       errMsg.style.display = 'block';
-      input.focus();
+      if (!empId) input.focus();
+      else nameInput.focus();
       return;
     }
     errMsg.style.display = 'none';
 
-    // 사번 저장
+    // 사번 / 이름 저장
     localStorage.setItem('emp_id', empId);
+    localStorage.setItem('emp_name', empName);
 
     // 버튼 비활성화
     document.querySelectorAll('.btn').forEach(b => b.disabled = true);
@@ -256,6 +271,7 @@
     const now = new Date();
     const query = new URLSearchParams({
       emp_id   : empId,
+      emp_name : empName,
       class    : className,
       type     : type,
       timestamp: now.toISOString(),
@@ -286,7 +302,7 @@
     titleEl.textContent  = type + ' 완료!';
     titleEl.className    = 'result-title ' + (isIn ? 'in' : 'out');
     document.getElementById('result-info').innerHTML =
-      `사번 &nbsp;<strong>${empId}</strong><br>${className}<br>${dateStr} ${timeStr}`;
+      `<strong>${empName}</strong> (${empId})<br>${className}<br>${dateStr} ${timeStr}`;
 
     document.getElementById('result').style.display = 'block';
   }
