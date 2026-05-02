@@ -286,10 +286,10 @@
       setTimeout(resolve, 3000); // 3초 안에 응답 없어도 진행
     });
 
-    showResult(type, empId, now);
+    showResult(type, empId, empName, now);
   }
 
-  function showResult(type, empId, now) {
+  function showResult(type, empId, empName, now) {
     document.getElementById('form-section').style.display = 'none';
 
     const isIn     = type === '입실';
