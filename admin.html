@@ -171,7 +171,7 @@
 
   <div class="header">
     <h1>🖨️ QR 출결 관리자</h1>
-    <p>수업별 QR 코드를 생성하고 출력하세요</p>
+    <p>QR은 30초마다 자동 갱신됩니다 — 화면을 강의실에 띄워두세요</p>
   </div>
 
   <!-- QR 생성 카드 -->
@@ -194,12 +194,10 @@
     <div class="qr-box">
       <div class="qr-label" id="qr-class-label"></div>
       <div id="qrcode"></div>
+      <div style="font-size:13px; color:#4f46e5; font-weight:600; margin-top:8px;">
+        ⏱ <span id="countdown">30</span>초 후 갱신
+      </div>
       <div style="font-size:12px; color:#aaa;">핸드폰 기본 카메라로 스캔하세요</div>
-    </div>
-
-    <div class="btn-group">
-      <button class="btn-secondary" onclick="printQR()">🖨️ 인쇄하기</button>
-      <button class="btn-secondary" onclick="downloadQR()">💾 이미지 저장</button>
     </div>
   </div>
 
@@ -220,12 +218,20 @@
     return document.getElementById('class-name').value.trim();
   }
 
+  const TOKEN_SEC = 30; // 토큰 유효 시간 (초)
+  let countdownTimer = null;
+
+  // 현재 30초 단위 토큰 생성
+  function getToken() {
+    return Math.floor(Date.now() / (TOKEN_SEC * 1000));
+  }
+
   function buildUrl() {
     const base = getBaseUrl();
     const cls  = getClassName();
     if (!base) return '';
-    const encoded = cls ? '?class=' + encodeURIComponent(cls) : '';
-    return base + encoded;
+    const params = new URLSearchParams({ class: cls || '출결시스템', t: getToken() });
+    return base + '?' + params.toString();
   }
 
   function updatePreview() {
@@ -234,32 +240,56 @@
   }
 
   function generateQR() {
-    const url = buildUrl();
-    if (!url || BASE_URL.includes('YOUR-APP')) {
+    if (BASE_URL.includes('YOUR-APP')) {
       alert('admin.html 파일 상단의 BASE_URL을 Vercel 주소로 바꿔주세요.');
       return;
     }
+    if (!getClassName()) {
+      alert('수업명을 입력해주세요.');
+      return;
+    }
 
-    const cls = getClassName() || '출결 시스템';
-
-    // 이전 QR 제거
-    const container = document.getElementById('qrcode');
-    container.innerHTML = '';
-    if (qrInstance) qrInstance = null;
-
-    // QR 생성
-    qrInstance = new QRCode(container, {
-      text      : url,
-      width     : 220,
-      height    : 220,
-      colorDark : '#1a1a2e',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
-
-    document.getElementById('qr-class-label').textContent = cls;
+    refreshQR();
     document.getElementById('qr-result').style.display = 'block';
     document.getElementById('qr-result').scrollIntoView({ behavior: 'smooth' });
+
+    // 기존 타이머 제거 후 재시작
+    if (countdownTimer) clearInterval(countdownTimer);
+    startCountdown();
+  }
+
+  function refreshQR() {
+    const url = buildUrl();
+    const cls = getClassName() || '출결 시스템';
+    const container = document.getElementById('qrcode');
+    container.innerHTML = '';
+    qrInstance = null;
+
+    qrInstance = new QRCode(container, {
+      text        : url,
+      width       : 220,
+      height      : 220,
+      colorDark   : '#1a1a2e',
+      colorLight  : '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    document.getElementById('qr-class-label').textContent = cls;
+  }
+
+  function startCountdown() {
+    const el = document.getElementById('countdown');
+    // 현재 30초 구간 안에서 남은 시간 계산
+    let remaining = TOKEN_SEC - (Math.floor(Date.now() / 1000) % TOKEN_SEC);
+    el.textContent = remaining;
+
+    countdownTimer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        remaining = TOKEN_SEC;
+        refreshQR(); // QR 갱신
+      }
+      el.textContent = remaining;
+    }, 1000);
   }
 
   function printQR() {

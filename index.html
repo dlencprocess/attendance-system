@@ -223,10 +223,22 @@
   const errMsg    = document.getElementById('error-msg');
   const clsLabel  = document.getElementById('class-label');
 
-  // URL 파라미터에서 수업명 읽기
+  // URL 파라미터에서 수업명 / 토큰 읽기
   const params    = new URLSearchParams(window.location.search);
   const className = params.get('class') || '출결 시스템';
+  const urlToken  = parseInt(params.get('t') || '0', 10);
   clsLabel.textContent = className;
+
+  // 토큰 유효성 검사 (30초 단위, ±1 허용)
+  const TOKEN_SEC = 30;
+  const nowToken  = Math.floor(Date.now() / (TOKEN_SEC * 1000));
+  if (urlToken && Math.abs(nowToken - urlToken) > 1) {
+    // QR 만료 — 폼 숨기고 안내 표시
+    document.getElementById('form-section').innerHTML =
+      '<div class="result-icon">⏰</div>' +
+      '<div class="result-title" style="color:#dc2626;font-size:20px;">QR이 만료되었습니다</div>' +
+      '<div class="result-info" style="margin-top:12px;">강의실 화면의 QR을 다시 스캔해주세요.</div>';
+  }
 
   // 저장된 사번 / 이름 불러오기 (localStorage)
   const saved = localStorage.getItem('emp_id');
