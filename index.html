@@ -256,37 +256,11 @@
       letter-spacing: 0.5px;
     }
 
-    /* ── 푸터 ── */
-    .footer {
-      background: #0d1f3c;
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .footer-logo {
-      display: flex;
-      align-items: flex-start;
-      gap: 2px;
-    }
-
-    .footer-logo-dl {
-      font-size: 18px;
-      font-weight: 900;
-      color: #fff;
-    }
-
-    .footer-logo-enc {
-      font-size: 8px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.7);
-      margin-top: 2px;
-    }
-
-    .footer-text {
-      font-size: 10px;
-      color: rgba(255,255,255,0.4);
+    /* ── 로고 고정 ── */
+    .logo-fixed {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
     }
   </style>
 </head>
@@ -300,9 +274,6 @@
 
 <!-- 메인 -->
 <div class="main">
-  <div style="text-align:center; margin-bottom:20px;">
-    <img src="https://raw.githubusercontent.com/dlencprocess/attendance-system/main/logo.png" alt="DL E&C" style="height:36px;" />
-  </div>
   <div class="card">
 
     <!-- 입력 화면 -->
@@ -358,10 +329,9 @@
   </div>
 </div>
 
-<!-- 푸터 -->
-<div class="footer">
-  <span class="footer-text">이 정보는 DL이앤씨의 자산입니다</span>
-  <span class="footer-text">이 정보는 DL이앤씨의 자산입니다</span>
+<!-- 로고 고정 (좌측 하단) -->
+<div class="logo-fixed">
+  <img src="https://raw.githubusercontent.com/dlencprocess/attendance-system/main/logo.png" alt="DL E&C" style="height:28px;" />
 </div>
 
 <script>

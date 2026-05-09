@@ -3,119 +3,232 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QR 출결 관리자</title>
+  <title>교육 출결 관리자 | DL E&C</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-      background: #f0f4ff;
+      background: #f0f2f5;
       min-height: 100vh;
-      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
     }
 
-    .container {
-      max-width: 560px;
+    /* ── 상단 헤더 ── */
+    .header {
+      background: linear-gradient(135deg, #0d1f3c 0%, #1a3560 100%);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: flex-start;
+      gap: 2px;
+    }
+
+    .logo-dl {
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .logo-enc {
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 2px;
+      letter-spacing: 0.5px;
+      background: rgba(255,255,255,0.18);
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+
+    .header-right {
+      text-align: right;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .header-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, #1e5bb5, #2d7dd2);
+    }
+
+    /* ── 메인 ── */
+    .main {
+      flex: 1;
+      padding: 32px 20px;
+      max-width: 600px;
+      width: 100%;
       margin: 0 auto;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .header h1 { font-size: 24px; color: #1a1a2e; margin-bottom: 4px; }
-    .header p  { font-size: 14px; color: #888; }
-
+    /* ── 카드 ── */
     .card {
       background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      padding: 28px 24px;
+      border-radius: 2px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       margin-bottom: 20px;
+      overflow: hidden;
     }
 
-    .card h2 {
-      font-size: 16px;
+    .card-title-bar {
+      background: #0d1f3c;
+      padding: 12px 20px;
+      border-left: 5px solid #2d7dd2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title-bar h2 {
+      font-size: 14px;
       font-weight: 700;
-      color: #333;
-      margin-bottom: 16px;
+      color: #fff;
+      letter-spacing: 0.3px;
     }
 
+    .card-body { padding: 24px 20px; }
+
+    /* ── 입력 ── */
     label {
       display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #555;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0d1f3c;
       margin-bottom: 6px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     input[type="text"] {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 13px;
       font-size: 15px;
-      border: 2px solid #e0e7ff;
-      border-radius: 10px;
+      border: 1px solid #d0d7e3;
+      border-bottom: 2px solid #0d1f3c;
+      border-radius: 0;
       outline: none;
-      transition: border 0.2s;
-      margin-bottom: 14px;
+      background: #f8f9fb;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 20px;
     }
 
-    input[type="text"]:focus { border-color: #4f46e5; }
+    input[type="text"]:focus {
+      background: #fff;
+      border-bottom-color: #1e5bb5;
+    }
 
+    /* URL 미리보기 */
     .url-preview {
-      background: #f8faff;
-      border: 1px solid #e0e7ff;
-      border-radius: 10px;
+      background: #f0f2f5;
+      border-left: 3px solid #1e5bb5;
       padding: 10px 14px;
-      font-size: 12px;
-      color: #6366f1;
+      font-size: 11px;
+      color: #1e5bb5;
       word-break: break-all;
-      margin-bottom: 16px;
-      min-height: 36px;
+      margin-bottom: 18px;
+      min-height: 34px;
+      font-family: monospace;
     }
 
+    /* 생성 버튼 */
     .btn-generate {
       width: 100%;
-      padding: 14px;
-      font-size: 16px;
+      padding: 13px;
+      font-size: 14px;
       font-weight: 700;
-      background: #4f46e5;
+      background: #0d1f3c;
       color: #fff;
       border: none;
-      border-radius: 12px;
+      border-radius: 2px;
       cursor: pointer;
+      letter-spacing: 0.5px;
       transition: background 0.2s;
     }
 
-    .btn-generate:hover { background: #4338ca; }
+    .btn-generate:hover { background: #1a3560; }
 
-    /* QR 결과 */
+    /* ── QR 결과 ── */
     #qr-result { display: none; }
 
     .qr-box {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-      padding: 24px;
-      background: #fafbff;
-      border-radius: 16px;
-      border: 2px dashed #c7d2fe;
+      gap: 14px;
+      padding: 28px 20px;
+      background: #f8f9fb;
+      border: 1px solid #dde2ec;
       margin-bottom: 16px;
     }
 
-    .qr-label {
-      font-size: 16px;
+    .qr-edu-label {
+      font-size: 13px;
       font-weight: 700;
-      color: #4f46e5;
+      color: #0d1f3c;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
-    #qrcode canvas, #qrcode img {
-      border-radius: 8px;
+    .qr-white-frame {
+      background: #fff;
+      padding: 12px;
+      border: 1px solid #dde2ec;
     }
 
+    .countdown-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .countdown-bar-bg {
+      width: 140px;
+      height: 6px;
+      background: #dde2ec;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .countdown-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #1e5bb5, #2d7dd2);
+      border-radius: 3px;
+      transition: width 1s linear;
+    }
+
+    .countdown-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e5bb5;
+      min-width: 60px;
+    }
+
+    .scan-hint {
+      font-size: 11px;
+      color: #9aa3b5;
+      letter-spacing: 0.3px;
+    }
+
+    /* 보조 버튼 */
     .btn-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -123,84 +236,102 @@
     }
 
     .btn-secondary {
-      padding: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      background: #f0f4ff;
-      color: #4f46e5;
-      border: 2px solid #c7d2fe;
-      border-radius: 10px;
+      padding: 11px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #fff;
+      color: #0d1f3c;
+      border: 1.5px solid #0d1f3c;
+      border-radius: 2px;
       cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: background 0.15s;
     }
 
-    .btn-secondary:hover { background: #e0e7ff; }
+    .btn-secondary:hover { background: #f0f2f5; }
 
-    /* 설정 카드 */
-    .setting-row {
+    /* ── 푸터 ── */
+    .footer {
+      background: #0d1f3c;
+      padding: 12px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 14px;
-      color: #444;
     }
 
-    .setting-row:last-child { border-bottom: none; }
-
-    .setting-row input[type="text"] {
-      width: 220px;
-      margin-bottom: 0;
-      padding: 8px 12px;
-      font-size: 13px;
-    }
-
-    .badge {
-      font-size: 11px;
-      background: #fef3c7;
-      color: #92400e;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
+    .footer-logo { display: flex; align-items: flex-start; gap: 2px; }
+    .footer-logo-dl  { font-size: 18px; font-weight: 900; color: #fff; }
+    .footer-logo-enc { font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.6); margin-top: 2px; }
+    .footer-text { font-size: 10px; color: rgba(255,255,255,0.35); }
   </style>
 </head>
 <body>
 
-<div class="container">
+<!-- 헤더 -->
+<div class="header">
+  <span style="font-size:14px;font-weight:700;color:#fff;">교육 출결 관리자</span>
+  <div class="header-right">
+    <div class="header-title">교육 출결 관리자</div>
+    <div class="header-sub">QR은 30초마다 자동 갱신됩니다</div>
+  </div>
+</div>
+<div class="accent-bar"></div>
 
-  <div class="header">
-    <h1>🖨️ QR 출결 관리자</h1>
-    <p>QR은 30초마다 자동 갱신됩니다 — 화면을 강의실에 띄워두세요</p>
+<!-- 메인 -->
+<div class="main">
+  <div style="text-align:center; margin-bottom:20px;">
+    <img src="https://raw.githubusercontent.com/dlencprocess/attendance-system/main/logo.png" alt="DL E&C" style="height:36px;" />
   </div>
 
   <!-- QR 생성 카드 -->
   <div class="card">
-    <h2>📌 QR 코드 생성</h2>
+    <div class="card-title-bar">
+      <h2>QR 코드 생성</h2>
+    </div>
+    <div class="card-body">
+      <label>교육명 / 장소</label>
+      <input type="text" id="class-name" placeholder="예: 안전교육, 신입사원 직무교육" oninput="updatePreview()" />
 
-    <label>수업명 / 장소명</label>
-    <input type="text" id="class-name" placeholder="예: 안전교육, 2팀 조회" oninput="updatePreview()" />
+      <label>접속 URL 미리보기</label>
+      <div class="url-preview" id="url-preview">교육명을 입력하면 URL이 표시됩니다</div>
 
-    <label>접속 URL 미리보기</label>
-    <div class="url-preview" id="url-preview">URL이 여기에 표시됩니다</div>
-
-    <button class="btn-generate" onclick="generateQR()">QR 코드 생성</button>
-  </div>
-
-  <!-- QR 결과 -->
-  <div class="card" id="qr-result">
-    <h2>✅ 생성된 QR 코드</h2>
-
-    <div class="qr-box">
-      <div class="qr-label" id="qr-class-label"></div>
-      <div id="qrcode"></div>
-      <div style="font-size:13px; color:#4f46e5; font-weight:600; margin-top:8px;">
-        ⏱ <span id="countdown">30</span>초 후 갱신
-      </div>
-      <div style="font-size:12px; color:#aaa;">핸드폰 기본 카메라로 스캔하세요</div>
+      <button class="btn-generate" onclick="generateQR()">QR 코드 생성</button>
     </div>
   </div>
 
+  <!-- QR 결과 카드 -->
+  <div class="card" id="qr-result">
+    <div class="card-title-bar">
+      <h2>생성된 QR 코드</h2>
+      <span style="font-size:11px;color:rgba(255,255,255,0.6);">강의실 화면에 띄워두세요</span>
+    </div>
+    <div class="card-body">
+      <div class="qr-box">
+        <div class="qr-edu-label" id="qr-class-label"></div>
+        <div class="qr-white-frame">
+          <div id="qrcode"></div>
+        </div>
+        <div class="countdown-wrap">
+          <div class="countdown-bar-bg">
+            <div class="countdown-bar" id="countdown-bar" style="width:100%"></div>
+          </div>
+          <span class="countdown-text"><span id="countdown">30</span>초 후 갱신</span>
+        </div>
+        <div class="scan-hint">핸드폰 기본 카메라로 스캔하세요</div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-secondary" onclick="downloadQR()">이미지 저장</button>
+        <button class="btn-secondary" onclick="printQR()">인쇄하기</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 푸터 -->
+<div class="footer">
+  <span class="footer-text">이 정보는 DL이앤씨의 자산입니다</span>
 </div>
 
 <script>
@@ -208,35 +339,24 @@
   const BASE_URL = 'https://attendance-system-nine-amber.vercel.app';
   // ────────────────────────────────────────────────────────
 
-  let qrInstance = null;
-
-  function getBaseUrl() {
-    return BASE_URL.replace(/\/$/, '');
-  }
-
-  function getClassName() {
-    return document.getElementById('class-name').value.trim();
-  }
-
-  const TOKEN_SEC = 30; // 토큰 유효 시간 (초)
+  const TOKEN_SEC = 30;
+  let qrInstance    = null;
   let countdownTimer = null;
 
-  // 현재 30초 단위 토큰 생성
-  function getToken() {
-    return Math.floor(Date.now() / (TOKEN_SEC * 1000));
-  }
+  function getBaseUrl()  { return BASE_URL.replace(/\/$/, ''); }
+  function getClassName(){ return document.getElementById('class-name').value.trim(); }
+  function getToken()    { return Math.floor(Date.now() / (TOKEN_SEC * 1000)); }
 
   function buildUrl() {
     const base = getBaseUrl();
     const cls  = getClassName();
     if (!base) return '';
-    const params = new URLSearchParams({ class: cls || '출결시스템', t: getToken() });
-    return base + '?' + params.toString();
+    return base + '?' + new URLSearchParams({ class: cls || '출결시스템', t: getToken() }).toString();
   }
 
   function updatePreview() {
     const url = buildUrl();
-    document.getElementById('url-preview').textContent = url || 'URL이 여기에 표시됩니다';
+    document.getElementById('url-preview').textContent = url || '교육명을 입력하면 URL이 표시됩니다';
   }
 
   function generateQR() {
@@ -245,15 +365,12 @@
       return;
     }
     if (!getClassName()) {
-      alert('수업명을 입력해주세요.');
+      alert('교육명을 입력해주세요.');
       return;
     }
-
     refreshQR();
     document.getElementById('qr-result').style.display = 'block';
     document.getElementById('qr-result').scrollIntoView({ behavior: 'smooth' });
-
-    // 기존 타이머 제거 후 재시작
     if (countdownTimer) clearInterval(countdownTimer);
     startCountdown();
   }
@@ -264,12 +381,11 @@
     const container = document.getElementById('qrcode');
     container.innerHTML = '';
     qrInstance = null;
-
     qrInstance = new QRCode(container, {
       text        : url,
-      width       : 220,
-      height      : 220,
-      colorDark   : '#1a1a2e',
+      width       : 200,
+      height      : 200,
+      colorDark   : '#0d1f3c',
       colorLight  : '#ffffff',
       correctLevel: QRCode.CorrectLevel.H
     });
@@ -277,49 +393,48 @@
   }
 
   function startCountdown() {
-    const el = document.getElementById('countdown');
-    // 현재 30초 구간 안에서 남은 시간 계산
+    const el  = document.getElementById('countdown');
+    const bar = document.getElementById('countdown-bar');
     let remaining = TOKEN_SEC - (Math.floor(Date.now() / 1000) % TOKEN_SEC);
-    el.textContent = remaining;
+
+    const update = () => {
+      el.textContent = remaining;
+      bar.style.width = (remaining / TOKEN_SEC * 100) + '%';
+    };
+    update();
 
     countdownTimer = setInterval(() => {
       remaining--;
       if (remaining <= 0) {
         remaining = TOKEN_SEC;
-        refreshQR(); // QR 갱신
+        refreshQR();
       }
-      el.textContent = remaining;
+      update();
     }, 1000);
-  }
-
-  function printQR() {
-    window.print();
   }
 
   function downloadQR() {
     const canvas = document.querySelector('#qrcode canvas');
     if (!canvas) { alert('QR 코드를 먼저 생성하세요.'); return; }
-
-    const cls = getClassName() || 'qr';
     const link = document.createElement('a');
-    link.download = cls + '_QR.png';
+    link.download = (getClassName() || 'QR') + '_출결QR.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
   }
+
+  function printQR() { window.print(); }
 </script>
 
 <!-- 인쇄 스타일 -->
 <style>
   @media print {
-    body { background: #fff; padding: 0; }
-    .header, #qr-result ~ *, .btn-generate, .btn-group,
-    .card:not(#qr-result), .setting-row { display: none !important; }
-    #qr-result {
-      display: block !important;
-      box-shadow: none;
-      border: none;
-    }
-    .qr-box { border: 2px solid #ccc; }
+    body { background: #fff; }
+    .header, .accent-bar, .footer,
+    .card:not(#qr-result), .btn-group,
+    .btn-generate, .countdown-wrap, .scan-hint { display: none !important; }
+    #qr-result { display: block !important; box-shadow: none; }
+    .card-title-bar { background: #0d1f3c !important; -webkit-print-color-adjust: exact; }
+    .qr-box { border: 1px solid #ccc; }
   }
 </style>
 
