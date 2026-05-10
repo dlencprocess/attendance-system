@@ -201,29 +201,44 @@
     #result { display: none; }
 
     .result-body {
-      padding: 36px 24px 28px;
+      padding: 32px 24px 28px;
       text-align: center;
     }
 
-    .result-icon { font-size: 52px; margin-bottom: 16px; }
-
-    .result-badge {
-      display: inline-block;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 4px 16px;
-      border-radius: 2px;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
+    .result-check {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
     }
 
-    .result-badge.in  { background: #0d1f3c; color: #fff; }
-    .result-badge.out { background: #1e5bb5; color: #fff; }
+    .result-check.in  { background: #eef2ff; }
+    .result-check.out { background: #e8f4fd; }
+
+    .result-check svg { width: 28px; height: 28px; }
+
+    .result-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0d1f3c;
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+
+    .result-sub {
+      font-size: 12px;
+      color: #9aa3b5;
+      margin-bottom: 24px;
+      letter-spacing: 0.3px;
+    }
 
     .result-info-box {
       background: #f8f9fb;
       border: 1px solid #e0e5ef;
-      border-left: 4px solid #0d1f3c;
+      border-left: 3px solid #0d1f3c;
       padding: 16px;
       text-align: left;
       margin-bottom: 24px;
@@ -233,15 +248,15 @@
     .result-info-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-size: 13px;
-      padding: 4px 0;
+      padding: 7px 0;
       border-bottom: 1px solid #edf0f5;
-      color: #333;
+      color: #1a2b4a;
     }
 
     .result-info-row:last-child { border-bottom: none; }
-
-    .result-info-row .rk { color: #6b7a99; font-size: 12px; font-weight: 600; }
+    .result-info-row .rk { color: #9aa3b5; font-size: 12px; font-weight: 600; }
 
     .btn-close {
       width: 100%;
@@ -320,8 +335,11 @@
     <!-- 결과 화면 -->
     <div id="result">
       <div class="result-body">
-        <div class="result-icon" id="result-icon"></div>
-        <div class="result-badge" id="result-badge"></div>
+        <div class="result-check" id="result-check">
+          <!-- 아이콘은 JS에서 삽입 -->
+        </div>
+        <div class="result-title" id="result-title"></div>
+        <div class="result-sub" id="result-sub"></div>
         <div class="result-info-box" id="result-info-box"></div>
         <button class="btn-close" onclick="window.close()">확인</button>
       </div>
@@ -432,16 +450,17 @@
     const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const dateStr = now.toLocaleDateString('ko-KR');
 
-    document.getElementById('result-icon').textContent = isIn ? '✅' : '👋';
-    const badge = document.getElementById('result-badge');
-    badge.textContent  = type + ' 완료';
-    badge.className    = 'result-badge ' + (isIn ? 'in' : 'out');
+    const checkEl = document.getElementById('result-check');
+    checkEl.className = 'result-check ' + (isIn ? 'in' : 'out');
+    checkEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#1e5bb5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+    document.getElementById('result-title').textContent = type + ' 완료';
+    document.getElementById('result-sub').textContent   = dateStr + ' ' + timeStr;
 
     document.getElementById('result-info-box').innerHTML =
       `<div class="result-info-row"><span class="rk">성명</span><span>${empName}</span></div>` +
       `<div class="result-info-row"><span class="rk">사번</span><span>${empId}</span></div>` +
-      `<div class="result-info-row"><span class="rk">교육명</span><span>${className}</span></div>` +
-      `<div class="result-info-row"><span class="rk">일시</span><span>${dateStr} ${timeStr}</span></div>`;
+      `<div class="result-info-row"><span class="rk">교육명</span><span>${className}</span></div>`;
 
     document.getElementById('result').style.display = 'block';
   }
