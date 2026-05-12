@@ -367,7 +367,7 @@
   // 토큰 유효성 검사 (30초 단위, ±1 허용)
   const TOKEN_SEC = 30;
   const nowToken  = Math.floor(Date.now() / (TOKEN_SEC * 1000));
-  if (urlToken && Math.abs(nowToken - urlToken) > 1) {
+  if (urlToken && nowToken !== urlToken) {
     document.getElementById('form-section').innerHTML =
       '<div style="padding:48px 24px;text-align:center;">' +
       '<div style="font-size:48px;margin-bottom:16px;">⏰</div>' +
@@ -412,7 +412,7 @@
     document.querySelectorAll('.btn').forEach(b => b.disabled = true);
 
     const submitToken = Math.floor(Date.now() / (TOKEN_SEC * 1000));
-    if (urlToken && Math.abs(submitToken - urlToken) > 1) {
+    if (urlToken && submitToken !== urlToken) {
       document.getElementById('form-section').innerHTML =
         '<div style="padding:48px 24px;text-align:center;">' +
         '<div style="font-size:48px;margin-bottom:16px;">⏰</div>' +

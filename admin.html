@@ -25,9 +25,7 @@
       justify-content: space-between;
     }
 
-    .header-right {
-      text-align: right;
-    }
+    .header-right { text-align: right; }
 
     .header-title {
       font-size: 14px;
@@ -46,13 +44,17 @@
       background: linear-gradient(90deg, #1e5bb5, #2d7dd2);
     }
 
-    /* ── 메인 ── */
+    /* ── 2분할 메인 레이아웃 ── */
     .main {
       flex: 1;
-      padding: 32px 20px;
-      max-width: 640px;
+      padding: 28px 24px;
+      max-width: 1100px;
       width: 100%;
       margin: 0 auto;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+      align-items: start;
     }
 
     /* ── 카드 ── */
@@ -63,6 +65,8 @@
       margin-bottom: 20px;
       overflow: hidden;
     }
+
+    .card:last-child { margin-bottom: 0; }
 
     .card-title-bar {
       background: #0d1f3c;
@@ -149,10 +153,10 @@
       flex-direction: column;
       align-items: center;
       gap: 14px;
-      padding: 28px 20px;
+      padding: 24px 16px;
       background: #f8f9fb;
       border: 1px solid #dde2ec;
-      margin-bottom: 16px;
+      margin-bottom: 0;
     }
 
     .qr-edu-label {
@@ -161,6 +165,7 @@
       color: #0d1f3c;
       letter-spacing: 0.5px;
       text-transform: uppercase;
+      text-align: center;
     }
 
     .qr-white-frame {
@@ -176,7 +181,7 @@
     }
 
     .countdown-bar-bg {
-      width: 140px;
+      width: 120px;
       height: 6px;
       background: #dde2ec;
       border-radius: 3px;
@@ -203,21 +208,35 @@
       letter-spacing: 0.3px;
     }
 
+    /* ── 우측 컬럼: 과정 목록이 전체 높이 채우기 ── */
+    .col-right {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .col-right .card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .col-right .card-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
     /* ── 교육 과정 목록 ── */
     .course-list-wrap {
-      min-height: 60px;
+      flex: 1;
+      overflow-y: auto;
     }
 
-    .course-loading {
-      text-align: center;
-      padding: 24px;
-      font-size: 13px;
-      color: #9aa3b5;
-    }
-
+    .course-loading,
     .course-empty {
       text-align: center;
-      padding: 24px;
+      padding: 40px 24px;
       font-size: 13px;
       color: #9aa3b5;
     }
@@ -233,13 +252,16 @@
       color: #9aa3b5;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      padding: 8px 12px;
+      padding: 10px 16px;
       border-bottom: 1px solid #e8ecf2;
       text-align: left;
+      background: #fafbfc;
+      position: sticky;
+      top: 0;
     }
 
     .course-table td {
-      padding: 12px 12px;
+      padding: 13px 16px;
       font-size: 13px;
       color: #1a2b4a;
       border-bottom: 1px solid #f0f2f5;
@@ -247,6 +269,7 @@
     }
 
     .course-table tr:last-child td { border-bottom: none; }
+    .course-table tr:hover td { background: #fafbfc; }
 
     .course-table .course-name {
       font-weight: 700;
@@ -256,16 +279,17 @@
     .course-table .course-count {
       font-size: 12px;
       color: #6b7a99;
-      text-align: right;
+      white-space: nowrap;
     }
 
     .course-table .course-date {
       font-size: 11px;
       color: #9aa3b5;
+      white-space: nowrap;
     }
 
     .btn-send-mail {
-      padding: 6px 14px;
+      padding: 6px 12px;
       font-size: 12px;
       font-weight: 700;
       background: #fff;
@@ -279,28 +303,10 @@
     }
 
     .btn-send-mail:hover:not(:disabled) { background: #eef2ff; }
-
-    .btn-send-mail:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn-send-mail.sending {
-      color: #9aa3b5;
-      border-color: #9aa3b5;
-    }
-
-    .btn-send-mail.sent {
-      color: #2e7d32;
-      border-color: #2e7d32;
-      background: #f1f8f1;
-    }
-
-    .btn-send-mail.error {
-      color: #c0392b;
-      border-color: #c0392b;
-      background: #fff0f0;
-    }
+    .btn-send-mail:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-send-mail.sending { color: #9aa3b5; border-color: #9aa3b5; }
+    .btn-send-mail.sent    { color: #2e7d32; border-color: #2e7d32; background: #f1f8f1; }
+    .btn-send-mail.error   { color: #c0392b; border-color: #c0392b; background: #fff0f0; }
 
     .refresh-btn {
       font-size: 11px;
@@ -315,12 +321,10 @@
 
     .refresh-btn:hover { color: #fff; }
 
-    /* 메일 수신자 표시 */
     .mail-hint {
       font-size: 11px;
       color: #9aa3b5;
-      margin-top: 12px;
-      padding-top: 12px;
+      padding: 12px 16px;
       border-top: 1px solid #f0f2f5;
     }
 
@@ -334,6 +338,13 @@
     }
 
     .footer-text { font-size: 10px; color: rgba(255,255,255,0.35); }
+
+    /* ── 반응형: 좁은 화면에서는 세로 ── */
+    @media (max-width: 760px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -348,60 +359,67 @@
 </div>
 <div class="accent-bar"></div>
 
-<!-- 메인 -->
+<!-- 메인: 2분할 -->
 <div class="main">
 
-  <!-- QR 생성 카드 -->
-  <div class="card">
-    <div class="card-title-bar">
-      <h2>QR 코드 생성</h2>
-    </div>
-    <div class="card-body">
-      <label>교육명 / 장소</label>
-      <input type="text" id="class-name" placeholder="예: 안전교육, 신입사원 직무교육" oninput="updatePreview()" />
+  <!-- ── 좌측: QR 생성 ── -->
+  <div class="col-left">
 
-      <label>접속 URL 미리보기</label>
-      <div class="url-preview" id="url-preview">교육명을 입력하면 URL이 표시됩니다</div>
+    <!-- QR 생성 카드 -->
+    <div class="card">
+      <div class="card-title-bar">
+        <h2>QR 코드 생성</h2>
+      </div>
+      <div class="card-body">
+        <label>교육명 / 장소</label>
+        <input type="text" id="class-name" placeholder="예: 안전교육, 신입사원 직무교육" oninput="updatePreview()" />
 
-      <button class="btn-generate" onclick="generateQR()">QR 코드 생성</button>
-    </div>
-  </div>
+        <label>접속 URL 미리보기</label>
+        <div class="url-preview" id="url-preview">교육명을 입력하면 URL이 표시됩니다</div>
 
-  <!-- QR 결과 카드 -->
-  <div class="card" id="qr-result">
-    <div class="card-title-bar">
-      <h2>생성된 QR 코드</h2>
-      <span style="font-size:11px;color:rgba(255,255,255,0.6);">강의실 화면에 띄워두세요</span>
+        <button class="btn-generate" onclick="generateQR()">QR 코드 생성</button>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="qr-box">
-        <div class="qr-edu-label" id="qr-class-label"></div>
-        <div class="qr-white-frame">
-          <div id="qrcode"></div>
-        </div>
-        <div class="countdown-wrap">
-          <div class="countdown-bar-bg">
-            <div class="countdown-bar" id="countdown-bar" style="width:100%"></div>
+
+    <!-- QR 결과 카드 -->
+    <div class="card" id="qr-result">
+      <div class="card-title-bar">
+        <h2>생성된 QR 코드</h2>
+        <span style="font-size:11px;color:rgba(255,255,255,0.6);">강의실 화면에 띄워두세요</span>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <div class="qr-box">
+          <div class="qr-edu-label" id="qr-class-label"></div>
+          <div class="qr-white-frame">
+            <div id="qrcode"></div>
           </div>
-          <span class="countdown-text"><span id="countdown">30</span>초 후 갱신</span>
+          <div class="countdown-wrap">
+            <div class="countdown-bar-bg">
+              <div class="countdown-bar" id="countdown-bar" style="width:100%"></div>
+            </div>
+            <span class="countdown-text"><span id="countdown">30</span>초 후 갱신</span>
+          </div>
+          <div class="scan-hint">핸드폰 기본 카메라로 스캔하세요</div>
         </div>
-        <div class="scan-hint">핸드폰 기본 카메라로 스캔하세요</div>
       </div>
     </div>
+
   </div>
 
-  <!-- 교육 과정 목록 카드 -->
-  <div class="card">
-    <div class="card-title-bar">
-      <h2>교육 과정별 출결 기록</h2>
-      <button class="refresh-btn" onclick="loadCourseList()">↻ 새로고침</button>
-    </div>
-    <div class="card-body" style="padding: 0;">
-      <div class="course-list-wrap" id="course-list">
-        <div class="course-loading">목록 불러오는 중...</div>
+  <!-- ── 우측: 교육 과정 목록 ── -->
+  <div class="col-right">
+    <div class="card">
+      <div class="card-title-bar">
+        <h2>교육 과정별 출결 기록</h2>
+        <button class="refresh-btn" onclick="loadCourseList()">↻ 새로고침</button>
       </div>
-      <div class="mail-hint" style="padding: 0 20px 16px;">
-        📧 메일 수신: <strong>giveyoupoet@gmail.com</strong>
+      <div class="card-body">
+        <div class="course-list-wrap" id="course-list">
+          <div class="course-loading">목록 불러오는 중...</div>
+        </div>
+        <div class="mail-hint">
+          📧 메일 수신: <strong>giveyoupoet@gmail.com</strong>
+        </div>
       </div>
     </div>
   </div>
@@ -448,7 +466,6 @@
     }
     refreshQR();
     document.getElementById('qr-result').style.display = 'block';
-    document.getElementById('qr-result').scrollIntoView({ behavior: 'smooth' });
     if (countdownTimer) clearInterval(countdownTimer);
     startCountdown();
   }
@@ -507,12 +524,12 @@
       }
 
       if (!data.courses || data.courses.length === 0) {
-        container.innerHTML = '<div class="course-empty">아직 출결 기록이 없습니다.</div>';
+        container.innerHTML = '<div class="course-empty">아직 출결 기록이 없습니다.<br><span style="font-size:11px;margin-top:6px;display:block;">QR 스캔 후 여기에 과정이 표시됩니다.</span></div>';
         return;
       }
 
       let html = '<table class="course-table"><thead><tr>' +
-        '<th>교육 과정명</th><th style="text-align:right">기록 수</th><th>최근 날짜</th><th></th>' +
+        '<th>교육 과정명</th><th>기록</th><th>최근 날짜</th><th></th>' +
         '</tr></thead><tbody>';
 
       data.courses.forEach((course, idx) => {
@@ -567,10 +584,7 @@
         btn.textContent = '오류';
         btn.disabled = false;
         alert('발송 실패: ' + (data.error || '알 수 없는 오류'));
-        setTimeout(() => {
-          btn.classList.remove('error');
-          btn.textContent = '메일 발송';
-        }, 3000);
+        setTimeout(() => { btn.classList.remove('error'); btn.textContent = '메일 발송'; }, 3000);
       }
     } catch (err) {
       btn.classList.remove('sending');
@@ -578,10 +592,7 @@
       btn.textContent = '오류';
       btn.disabled = false;
       alert('네트워크 오류: ' + err.message);
-      setTimeout(() => {
-        btn.classList.remove('error');
-        btn.textContent = '메일 발송';
-      }, 3000);
+      setTimeout(() => { btn.classList.remove('error'); btn.textContent = '메일 발송'; }, 3000);
     }
   }
 
@@ -593,7 +604,6 @@
     return String(str).replace(/'/g, "\\'");
   }
 
-  // 페이지 로드 시 자동으로 과정 목록 가져오기
   loadCourseList();
 </script>
 
@@ -601,8 +611,9 @@
 <style>
   @media print {
     body { background: #fff; }
-    .header, .accent-bar, .footer,
+    .header, .accent-bar, .footer, .col-right,
     .card:not(#qr-result), .btn-generate, .countdown-wrap, .scan-hint { display: none !important; }
+    .main { display: block; }
     #qr-result { display: block !important; box-shadow: none; }
     .card-title-bar { background: #0d1f3c !important; -webkit-print-color-adjust: exact; }
     .qr-box { border: 1px solid #ccc; }
