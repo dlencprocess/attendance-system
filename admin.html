@@ -145,68 +145,54 @@
 
     .btn-generate:hover { background: #1a3560; }
 
-    /* ── QR 결과 ── */
-    #qr-result { display: none; }
-
-    .qr-box {
-      display: flex;
-      flex-direction: column;
+    /* ── QR 새 창 열기 안내 ── */
+    .qr-launch-box {
+      display: none;
       align-items: center;
       gap: 14px;
-      padding: 24px 16px;
-      background: #f8f9fb;
-      border: 1px solid #dde2ec;
-      margin-bottom: 0;
+      padding: 16px;
+      background: #f0f4ff;
+      border: 1px solid #c5d4f5;
+      border-left: 3px solid #1e5bb5;
+      margin-top: 12px;
+      border-radius: 2px;
     }
 
-    .qr-edu-label {
+    .qr-launch-box .launch-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .qr-launch-info {
+      flex: 1;
+    }
+
+    .qr-launch-info .launch-course {
       font-size: 13px;
       font-weight: 700;
       color: #0d1f3c;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      text-align: center;
+      margin-bottom: 2px;
     }
 
-    .qr-white-frame {
-      background: #fff;
-      padding: 12px;
-      border: 1px solid #dde2ec;
+    .qr-launch-info .launch-hint {
+      font-size: 11px;
+      color: #6b7a99;
     }
 
-    .countdown-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .countdown-bar-bg {
-      width: 120px;
-      height: 6px;
-      background: #dde2ec;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .countdown-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #1e5bb5, #2d7dd2);
-      border-radius: 3px;
-      transition: width 1s linear;
-    }
-
-    .countdown-text {
+    .btn-reopen {
+      padding: 7px 14px;
       font-size: 12px;
       font-weight: 700;
-      color: #1e5bb5;
-      min-width: 60px;
+      background: #1e5bb5;
+      color: #fff;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .scan-hint {
-      font-size: 11px;
-      color: #9aa3b5;
-      letter-spacing: 0.3px;
-    }
+    .btn-reopen:hover { background: #0d1f3c; }
 
     /* ── 우측 컬럼: 과정 목록이 전체 높이 채우기 ── */
     .col-right {
@@ -377,29 +363,16 @@
         <label>접속 URL 미리보기</label>
         <div class="url-preview" id="url-preview">교육명을 입력하면 URL이 표시됩니다</div>
 
-        <button class="btn-generate" onclick="generateQR()">QR 코드 생성</button>
-      </div>
-    </div>
+        <button class="btn-generate" onclick="generateQR()">QR 코드 생성 (새 창)</button>
 
-    <!-- QR 결과 카드 -->
-    <div class="card" id="qr-result">
-      <div class="card-title-bar">
-        <h2>생성된 QR 코드</h2>
-        <span style="font-size:11px;color:rgba(255,255,255,0.6);">강의실 화면에 띄워두세요</span>
-      </div>
-      <div class="card-body" style="padding:0;">
-        <div class="qr-box">
-          <div class="qr-edu-label" id="qr-class-label"></div>
-          <div class="qr-white-frame">
-            <div id="qrcode"></div>
+        <!-- QR 창 열림 안내 -->
+        <div class="qr-launch-box" id="qr-launch-box">
+          <div class="launch-icon">✅</div>
+          <div class="qr-launch-info">
+            <div class="launch-course" id="launch-course-name"></div>
+            <div class="launch-hint">QR 창이 열렸습니다. 강의실 화면에 띄워두세요.</div>
           </div>
-          <div class="countdown-wrap">
-            <div class="countdown-bar-bg">
-              <div class="countdown-bar" id="countdown-bar" style="width:100%"></div>
-            </div>
-            <span class="countdown-text"><span id="countdown">30</span>초 후 갱신</span>
-          </div>
-          <div class="scan-hint">핸드폰 기본 카메라로 스캔하세요</div>
+          <button class="btn-reopen" onclick="reopenQR()">다시 열기</button>
         </div>
       </div>
     </div>
@@ -438,16 +411,16 @@
   // ──────────────────────────────────────────────────────
 
   const TOKEN_SEC = 30;
-  let qrInstance     = null;
-  let countdownTimer = null;
+  let qrWindow    = null;
+  let lastClass   = '';
 
-  // ── QR 생성 ──────────────────────────────────────────
+  // ── QR 생성 (새 창) ──────────────────────────────────
 
   function getBaseUrl()  { return BASE_URL.replace(/\/$/, ''); }
   function getClassName(){ return document.getElementById('class-name').value.trim(); }
   function getToken()    { return Math.floor(Date.now() / (TOKEN_SEC * 1000)); }
 
-  function buildUrl() {
+  function buildPreviewUrl() {
     const base = getBaseUrl();
     const cls  = getClassName();
     if (!base) return '';
@@ -455,7 +428,7 @@
   }
 
   function updatePreview() {
-    const url = buildUrl();
+    const url = buildPreviewUrl();
     document.getElementById('url-preview').textContent = url || '교육명을 입력하면 URL이 표시됩니다';
   }
 
@@ -464,48 +437,34 @@
       alert('교육명을 입력해주세요.');
       return;
     }
-    refreshQR();
-    document.getElementById('qr-result').style.display = 'block';
-    if (countdownTimer) clearInterval(countdownTimer);
-    startCountdown();
+    lastClass = getClassName();
+    openQRWindow();
+
+    // 안내 박스 표시
+    const box = document.getElementById('qr-launch-box');
+    box.style.display = 'flex';
+    document.getElementById('launch-course-name').textContent = lastClass;
   }
 
-  function refreshQR() {
-    const url = buildUrl();
-    const cls = getClassName() || '출결 시스템';
-    const container = document.getElementById('qrcode');
-    container.innerHTML = '';
-    qrInstance = null;
-    qrInstance = new QRCode(container, {
-      text        : url,
-      width       : 200,
-      height      : 200,
-      colorDark   : '#0d1f3c',
-      colorLight  : '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
-    document.getElementById('qr-class-label').textContent = cls;
+  function buildQRPageUrl() {
+    return BASE_URL.replace(/\/$/, '') + '/qr.html?' +
+      new URLSearchParams({ class: lastClass }).toString();
   }
 
-  function startCountdown() {
-    const el  = document.getElementById('countdown');
-    const bar = document.getElementById('countdown-bar');
-    let remaining = TOKEN_SEC - (Math.floor(Date.now() / 1000) % TOKEN_SEC);
+  function openQRWindow() {
+    // 기존 창이 열려 있으면 재사용, 닫혔으면 새로 열기
+    if (qrWindow && !qrWindow.closed) {
+      qrWindow.location.href = buildQRPageUrl();
+      qrWindow.focus();
+    } else {
+      qrWindow = window.open(buildQRPageUrl(), 'qr-display',
+        'width=900,height=650,toolbar=no,menubar=no,scrollbars=no');
+    }
+  }
 
-    const update = () => {
-      el.textContent = remaining;
-      bar.style.width = (remaining / TOKEN_SEC * 100) + '%';
-    };
-    update();
-
-    countdownTimer = setInterval(() => {
-      remaining--;
-      if (remaining <= 0) {
-        remaining = TOKEN_SEC;
-        refreshQR();
-      }
-      update();
-    }, 1000);
+  function reopenQR() {
+    if (!lastClass) return;
+    openQRWindow();
   }
 
   // ── 교육 과정 목록 ────────────────────────────────────
@@ -611,12 +570,7 @@
 <style>
   @media print {
     body { background: #fff; }
-    .header, .accent-bar, .footer, .col-right,
-    .card:not(#qr-result), .btn-generate, .countdown-wrap, .scan-hint { display: none !important; }
-    .main { display: block; }
-    #qr-result { display: block !important; box-shadow: none; }
-    .card-title-bar { background: #0d1f3c !important; -webkit-print-color-adjust: exact; }
-    .qr-box { border: 1px solid #ccc; }
+    * { display: none !important; }
   }
 </style>
 

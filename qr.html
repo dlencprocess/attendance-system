@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR 출결 | DL E&C</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      background: #0d1f3c;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── 상단 띠 ── */
+    .top-bar {
+      background: rgba(255,255,255,0.05);
+      border-bottom: 3px solid #1e5bb5;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .course-badge {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .countdown-bar-bg {
+      width: 160px;
+      height: 6px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .countdown-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #1e5bb5, #2d7dd2);
+      border-radius: 3px;
+      transition: width 1s linear;
+    }
+
+    .countdown-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      min-width: 64px;
+      text-align: right;
+    }
+
+    /* ── QR 중앙 영역 ── */
+    .qr-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: 32px;
+    }
+
+    .qr-frame {
+      background: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.5);
+    }
+
+    .scan-hint {
+      font-size: 15px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.5px;
+    }
+
+    /* ── 하단 ── */
+    .bottom-bar {
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .bottom-url {
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .bottom-logo {
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      font-weight: 700;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 상단 -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <img src="https://raw.githubusercontent.com/dlencprocess/attendance-system/main/logo.png"
+         alt="DL E&C" style="height:24px;opacity:0.9;" />
+    <span class="course-badge" id="course-badge">교육명 로딩 중...</span>
+  </div>
+  <div class="top-bar-right">
+    <div class="countdown-bar-bg">
+      <div class="countdown-bar" id="countdown-bar" style="width:100%"></div>
+    </div>
+    <span class="countdown-text"><span id="countdown">30</span>초 후 갱신</span>
+  </div>
+</div>
+
+<!-- QR -->
+<div class="qr-stage">
+  <div class="qr-frame">
+    <div id="qrcode"></div>
+  </div>
+  <div class="scan-hint">핸드폰 기본 카메라로 스캔하세요</div>
+</div>
+
+<!-- 하단 -->
+<div class="bottom-bar">
+  <div class="bottom-url" id="bottom-url"></div>
+  <div class="bottom-logo">DL E&C</div>
+</div>
+
+<script>
+  // ─── 설정 ─────────────────────────────────────────────
+  const BASE_URL  = 'https://attendance-system-nine-amber.vercel.app';
+  // ──────────────────────────────────────────────────────
+
+  const TOKEN_SEC = 30;
+  let qrInstance     = null;
+  let countdownTimer = null;
+
+  const params    = new URLSearchParams(window.location.search);
+  const className = params.get('class') || '출결시스템';
+
+  document.getElementById('course-badge').textContent = className;
+  document.title = className + ' | QR 출결';
+
+  function getToken() { return Math.floor(Date.now() / (TOKEN_SEC * 1000)); }
+
+  function buildAttendanceUrl() {
+    return BASE_URL.replace(/\/$/, '') + '?' +
+      new URLSearchParams({ class: className, t: getToken() }).toString();
+  }
+
+  function renderQR() {
+    const url = buildAttendanceUrl();
+    const container = document.getElementById('qrcode');
+    container.innerHTML = '';
+    qrInstance = new QRCode(container, {
+      text        : url,
+      width       : 280,
+      height      : 280,
+      colorDark   : '#0d1f3c',
+      colorLight  : '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    document.getElementById('bottom-url').textContent = url;
+  }
+
+  function startCountdown() {
+    const el  = document.getElementById('countdown');
+    const bar = document.getElementById('countdown-bar');
+    let remaining = TOKEN_SEC - (Math.floor(Date.now() / 1000) % TOKEN_SEC);
+
+    const update = () => {
+      el.textContent = remaining;
+      bar.style.width = (remaining / TOKEN_SEC * 100) + '%';
+    };
+    update();
+
+    countdownTimer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        remaining = TOKEN_SEC;
+        renderQR();
+      }
+      update();
+    }, 1000);
+  }
+
+  renderQR();
+  startCountdown();
+</script>
+
+</body>
+</html>
